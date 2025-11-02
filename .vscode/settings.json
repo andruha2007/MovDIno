@@ -1,0 +1,21 @@
+{
+    "files.associations": {
+        "common.h": "c",
+        "specific_parser.h": "c",
+        "errors.h": "c",
+        "parser.h": "c",
+        "validator.h": "c",
+        "field.h": "c",
+        "interpreter.c": "cpp",
+        "string.h": "c",
+        "stdlib.h": "c",
+        "ctype.h": "c",
+        "limits.h": "c",
+        "stdio.h": "c",
+        "error.h": "c",
+        "structures.h": "c",
+        "interpreter.h": "c",
+        "cstdlib": "c"
+    },
+    "C_Cpp.errorSquiggles": "enabled"
+}
