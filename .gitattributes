@@ -1,0 +1,30 @@
+# Унифицированная обработка окончаний строк
+# В репозитории — всегда LF (\n)
+# В рабочей копии — автоматически (CRLF на Windows, LF на Unix)
+
+# Текстовые файлы
+*.c      text eol=lf
+*.h      text eol=lf
+*.txt    text eol=lf
+*.md     text eol=lf
+*.json   text eol=lf
+*.yml    text eol=lf
+*.yaml   text eol=lf
+Makefile text eol=lf
+*.gitignore text eol=lf
+*.gitattributes text eol=lf
+
+# Бинарные файлы (не обрабатывать как текст)
+*.exe    binary
+*.dll    binary
+*.o      binary
+*.obj    binary
+*.a      binary
+*.lib    binary
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.bmp    binary
+
+# Автоматическое определение для остальных файлов
+* text=auto

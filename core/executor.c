@@ -31,14 +31,14 @@ int execute_start(Field *field, int x, int y, int line_number){
         handle_error("Invalid start position", line_number);
 
     
-    if (!is_empty_cell(field, x, y))
+    if (!is_empty_tile(field, x, y))
         handle_error("Start position must be empty", line_number);
 
     
     field->dino_pos.x = x;
     field->dino_pos.y = y;
     field->dino_placed = 1;
-    field->cells[x][y].symbol = DINOSAUR;
+    field->tiles[x][y].symbol = DINOSAUR;
 
     return 1; // Динозавр посажен в клетку
 }
@@ -72,10 +72,10 @@ int execute_move(Field *field, Direction direction, int line_number){
         return 0;
     }
     
-    field->cells[field->dino_pos.y][field->dino_pos.x].symbol = EMPTY_TILE;
+    field->tiles[field->dino_pos.y][field->dino_pos.x].symbol = EMPTY_TILE;
     field->dino_pos.x = new_x;
     field->dino_pos.y = new_y;
-    field->cells[new_y][new_x].symbol = DINOSAUR;
+    field->tiles[new_y][new_x].symbol = DINOSAUR;
     
     return 1; // Динозавр пошёл
 }
@@ -85,9 +85,9 @@ int execute_paint(Field *field, char color, int line_number){
         handle_error("Cannot paint before dinosaur placement", line_number);
         
     
-    field->cells[field->dino_pos.y][field->dino_pos.x].symbol = color;
-    field->cells[field->dino_pos.y][field->dino_pos.x].base_symbol = color;
-    field->cells[field->dino_pos.y][field->dino_pos.x].is_colored = 1;
+    field->tiles[field->dino_pos.y][field->dino_pos.x].symbol = color;
+    field->tiles[field->dino_pos.y][field->dino_pos.x].base_symbol = color;
+    field->tiles[field->dino_pos.y][field->dino_pos.x].is_colored = 1;
     
     return 1; // Клетка накрашена (Куда это она так)
 }
@@ -113,11 +113,11 @@ int execute_jump(Field *field, Direction direction, int distance, int line_numbe
         } // надо написать такую же для других клеток с предметами
         
 
-        field->cells[field->dino_pos.y][field->dino_pos.x].symbol 
-                = field->cells[field->dino_pos.y][field->dino_pos.x].base_symbol;
+        field->tiles[field->dino_pos.y][field->dino_pos.x].symbol 
+                = field->tiles[field->dino_pos.y][field->dino_pos.x].base_symbol;
         field->dino_pos.x = new_x;
         field->dino_pos.y = new_y;
-        field->cells[new_y][new_x].symbol = DINOSAUR;
+        field->tiles[new_y][new_x].symbol = DINOSAUR;
     }
 
     if (is_hole(field, new_x, new_y)) {
@@ -125,11 +125,11 @@ int execute_jump(Field *field, Direction direction, int distance, int line_numbe
     }
     
 
-    field->cells[field->dino_pos.y][field->dino_pos.x].symbol 
-        = field->cells[field->dino_pos.y][field->dino_pos.x].base_symbol;
+    field->tiles[field->dino_pos.y][field->dino_pos.x].symbol 
+        = field->tiles[field->dino_pos.y][field->dino_pos.x].base_symbol;
     field->dino_pos.x = new_x;
     field->dino_pos.y = new_y;
-    field->cells[new_y][new_x].symbol = DINOSAUR;
+    field->tiles[new_y][new_x].symbol = DINOSAUR;
     
     return 1;
 }

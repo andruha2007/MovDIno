@@ -2,8 +2,10 @@
 
 #include "../utils/common.h"
 #include "specific_parser.h"
+#include "../utils/errors.h"
 #include <stdio.h>
-
+#include <string.h>
+#include "../utils/validator.h"
 
 Command parse_size_command(int line_number){
     Command cmd = {CMD_SIZE};
@@ -66,7 +68,7 @@ Command parse_move_command(int line_number){
         return (Command){CMD_UNKNOWN};
     }
 
-    cmd.parametrs.direction = dir_str;
+    cmd.parametrs.direction = parse_direction(dir_str);
     return cmd;
 }
 
@@ -85,6 +87,8 @@ Command parse_paint_command(int line_number){
     }
 
     cmd.parametrs.color_char = color_str[0];
+
+    return cmd;
 }
 
 Command parse_dig_command(int line_number){
@@ -96,7 +100,7 @@ Command parse_dig_command(int line_number){
         return (Command){CMD_UNKNOWN};
     }
 
-    cmd.parametrs.direction = dir_str;
+    cmd.parametrs.direction = parse_direction(dir_str);
 
     return cmd;
 }
@@ -110,7 +114,7 @@ Command parse_mound_command(int line_number){
         return (Command){CMD_UNKNOWN};
     }
 
-    cmd.parametrs.direction = dir_str;
+    cmd.parametrs.direction = parse_direction(dir_str);
 
     return cmd;
 }
@@ -126,7 +130,12 @@ Command parse_jump_command(int line_number){
         return (Command){CMD_UNKNOWN};
     }
 
-    cmd.parametrs.direction = dir_str;
+    if (!parse_strict_integer(dist_str, &distance)) {
+        handle_error("Invalid distance in JUMP command", line_number);
+        return (Command){CMD_UNKNOWN};
+    }
+
+    cmd.parametrs.direction = parse_direction(dir_str);
     cmd.parametrs.jump_distance = distance;
 
     return cmd;
@@ -141,7 +150,7 @@ Command parse_grow_command(int line_number){
         return (Command){CMD_UNKNOWN};
     }
 
-    cmd.parametrs.direction = dir_str;
+    cmd.parametrs.direction = parse_direction(dir_str);
 
     return cmd;
 }
@@ -155,7 +164,7 @@ Command parse_cut_command(int line_number){
         return (Command){CMD_UNKNOWN};
     }
 
-    cmd.parametrs.direction = dir_str;
+    cmd.parametrs.direction = parse_direction(dir_str);
 
     return cmd;
 }
@@ -169,7 +178,7 @@ Command parse_make_command(int line_number){
         return (Command){CMD_UNKNOWN};
     }
 
-    cmd.parametrs.direction = dir_str;
+    cmd.parametrs.direction = parse_direction(dir_str);
 
     return cmd;
 }
@@ -183,19 +192,7 @@ Command parse_push_command(int line_number){
         return (Command){CMD_UNKNOWN};
     }
 
-    cmd.parametrs.direction = dir_str;
+    cmd.parametrs.direction = parse_direction(dir_str);
 
-    return cmd;
-}
-
-Command parse_make_command(int line_number){
-    Command cmd;
-    
-    return cmd;
-}
-
-Command parse_push_command(int line_number){
-    Command cmd;
-    
     return cmd;
 }

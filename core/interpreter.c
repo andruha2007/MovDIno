@@ -42,7 +42,7 @@ Interpreter* create_interpreter(void) {
     interpreter->command_list = NULL;
     interpreter->current_command = 0;
     interpreter->execution_success = 1;
-    interpreter->command_list->line_number = 0;
+    //interpreter->command_list->line_number = 0;
     
     // Конфигурация по умолчанию
     interpreter->config.should_display = 1;

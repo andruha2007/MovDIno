@@ -7,15 +7,23 @@
 #include "specific_parser.h"
 #include "../data/structures.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include "../utils/errors.h"
+
+Direction parse_direction(const char* dir_str) {
+    if (!dir_str) return DIR_NONE;
+    if (strcmp(dir_str, "UP") == 0)    return DIR_UP;
+    if (strcmp(dir_str, "DOWN") == 0)  return DIR_DOWN;
+    if (strcmp(dir_str, "LEFT") == 0)  return DIR_LEFT;
+    if (strcmp(dir_str, "RIGHT") == 0) return DIR_RIGHT;
+    return DIR_NONE;
+}
 
 Command parse_command(const char *line, int line_number) {
     Command cmd;
 
     cmd.type = CMD_UNKNOWN;
     cmd.parametrs.direction = DIR_NONE;
-    cmd.parametrs.color_char;
-
-
 
     cmd.line_number = line_number;
  
@@ -66,7 +74,7 @@ Command parse_command(const char *line, int line_number) {
 
 
 CommandList* create_command_list(void) {
-    CommandList* list = (CommandList*)malloc(sizeof(CommandList));
+    CommandList* list = (CommandList*) malloc(sizeof(CommandList));
     if (!list) return NULL;
     
     list->count = 0;

@@ -10,8 +10,8 @@
 
 
 typedef struct{
-    char input_file[MAX_FILENAME];
-    char output_file[MAX_FILENAME];
+    char* input_file[MAX_FILENAME];
+    char* output_file[MAX_FILENAME];
     int should_display;
     int should_save;
     int display_interval;

@@ -3,6 +3,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include "../data/structures.h"
 
 typedef enum {
     CMD_SIZE,
@@ -52,6 +53,8 @@ typedef struct {
     int line_number;
 } CommandList;
 
+Direction parse_direction(const char* dir_str);
+
 Command parse_command(const char *line, int line_number);
 
 CommandList *create_command_list(void);
@@ -61,9 +64,6 @@ void free_command_list(CommandList* list);
 void add_command(CommandList* list, Command cmd);
 
 CommandList *parse_file(const char *filename);
-
-Direction parse_direction(const char* dir_str);
-
 
 int is_comment_line(const char *line);
 

@@ -8,7 +8,7 @@
 typedef struct {
     int width;
     int height;
-    Tile **cells;
+    Tile **tiles;
     Position dino_pos;
     int dino_placed;
 } Field;
@@ -25,7 +25,7 @@ int is_hole(const Field* field, int x, int y);
 int is_tree(const Field* field, int x, int y);
 int is_rock(const Field* field, int x, int y);
 
-int set_cell(Field* field, int x, int y, char symbol, int preserve_color);
+int set_tile(Field* field, int x, int y, char symbol, int preserve_color);
 int save_field(const Field* field, const char* filename);
 
 void print_colored_field(const Field* field);
