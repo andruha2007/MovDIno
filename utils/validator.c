@@ -9,19 +9,19 @@
 
 int is_strict_integer(const char *str){
     if (str == NULL || *str == '\0')
-        return 0;
+        return -1;
 
     for (int i = 0; str[i] != '\0'; ++i) {
         if (!isdigit((unsigned char) str[i]))
-            return 0;
+            return -1;
     }
-
     return 1;
 }
 
-int parse_strict_integer(const char *str, int *result){
-    if (!is_strict_integer(str))
-        return 0;
+
+int parse_strict_positive_integer(const char *str, int *result){
+    if (is_strict_integer(str) == -1)
+        return -1;
 
     char *endptr;
     errno = 0;
@@ -32,6 +32,10 @@ int parse_strict_integer(const char *str, int *result){
     if (value < INT_MIN || value > INT_MAX) return 0;
 
     *result = atoi(str);
+
+    if (result < 0)
+        return -1;
+        
     return 1;
 }
 

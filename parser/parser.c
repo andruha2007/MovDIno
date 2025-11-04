@@ -24,7 +24,7 @@ Command parse_command(const char *line, int line_number) {
 
     cmd.type = CMD_UNKNOWN;
     cmd.parametrs.direction = DIR_NONE;
-
+    cmd.jump_distance = 0;
     cmd.line_number = line_number;
  
     if (has_left_spaces(line)){
@@ -54,12 +54,12 @@ Command parse_command(const char *line, int line_number) {
         return parse_move_command(line_number);
     else if (strcmp(token, "PAINT") == 0)
         return parse_paint_command(line_number);
+    else if (strcmp(token, "JUMP") == 0)
+        return parse_jump_command(line_number);
     else if (strcmp(token, "DIG") == 0)
         return parse_dig_command(line_number);
     else if (strcmp(token, "MOUND") == 0)
         return parse_mound_command(line_number);
-    else if (strcmp(token, "JUMP") == 0)
-        return parse_jump_command(line_number);
     else if (strcmp(token, "GROW") == 0)
         return parse_grow_command(line_number);
     else if (strcmp(token, "CUT") == 0)
@@ -103,6 +103,7 @@ void add_command(CommandList* list, Command cmd) {
 CommandList *parse_file(const char* filename) {
     FILE* file = fopen(filename, "r");
     if (!file) {
+        printf("%s\n", filename);
         handle_error("Cannot open input file", 0);
         return NULL;
     }
@@ -113,12 +114,10 @@ CommandList *parse_file(const char* filename) {
         return NULL;
     }
     
-    char line[MAX_LINE_LENGTH];
+    char line[MAX_LINE_LENGTH] = {0};
     int line_number = 0;
-    
-    while (fgets(line, sizeof(line), file)) {
+    while (fgets(line, sizeof(line), file) != NULL) {
         line_number++;
-        
         // Удаляем символ новой строки
         line[strcspn(line, "\n")] = '\0';
         
@@ -132,10 +131,9 @@ CommandList *parse_file(const char* filename) {
             list->line_number = line_number;
             list->commands[list->count++] = cmd;
         } else if (cmd.type == CMD_UNKNOWN)
-            handle_error("Invalid command", line_number);
-        
+            handle_error("Invalid command", line_number);   
     }
-    
+
     fclose(file);
     return list;
 }

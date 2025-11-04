@@ -60,12 +60,14 @@ int main(int argc, char* argv[]) {
         handle_error("Failed to create interpreter", 0);  // Критическая ошибка
     }
 
-    
+    const char* input_file = argv[1];
+    const char* output_file = argv[2];
+
     // Выполнение программы
-    int result = execute_program(interpreter, config.input_file, config.output_file);
+    int result = execute_program(interpreter, input_file, output_file);
     
     free_interpreter(interpreter);
-    
+
     if (result == EXECUTION_SUCCESS) {
         printf("Program completed successfully!\n");
         return EXIT_SUCCESS;

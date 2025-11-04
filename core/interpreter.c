@@ -42,7 +42,6 @@ Interpreter* create_interpreter(void) {
     interpreter->command_list = NULL;
     interpreter->current_command = 0;
     interpreter->execution_success = 1;
-    //interpreter->command_list->line_number = 0;
     
     // Конфигурация по умолчанию
     interpreter->config.should_display = 1;
@@ -85,19 +84,29 @@ int execute_command(Interpreter* interpreter, Command *cmd, int line_number) {
             break;
             
         case CMD_MOVE:
-            result = (ExecutionResult) execute_move(interpreter->field, cmd->parametrs.direction, interpreter->command_list->line_number);
-            break;
-            
-        case CMD_PAINT:
-            if (!execute_paint(interpreter->field, cmd->parametrs.color_char, interpreter->command_list->line_number)) {
+            if (!execute_move(interpreter->field, cmd->parametrs.direction, interpreter->command_list->line_number))
                 result = EXECUTION_ERROR;
-            }
+            break;
+
+        case CMD_PAINT:
+            if (!execute_paint(interpreter->field, cmd->parametrs.color_char, interpreter->command_list->line_number)) 
+                result = EXECUTION_ERROR;
             break;
             
         case CMD_JUMP:
-            result = (ExecutionResult) execute_jump(interpreter->field, cmd->parametrs.direction, cmd->parametrs.jump_distance, interpreter->command_list->line_number);
+            if (!execute_jump(interpreter->field, cmd->parametrs.direction, cmd->jump_distance, interpreter->command_list->line_number))
+                result = EXECUTION_ERROR;
             break;
-            
+        case CMD_DIG:
+            if (!execute_dig(interpreter->field, cmd->parametrs.direction, interpreter->command_list->line_number))
+                result = EXECUTION_ERROR;
+            break;
+
+        case CMD_MOUND:
+            if (!execute_mound(interpreter->field, cmd->parametrs.direction, interpreter->command_list->line_number))
+                result = EXECUTION_ERROR;
+            break;
+
         case CMD_UNKNOWN:
             handle_warning("Skipping unknown command", interpreter->command_list->line_number);
             result = EXECUTION_ERROR;
@@ -135,7 +144,6 @@ int execute_program(Interpreter* interpreter, const char* input_file, const char
     
     // Парсинг и выполнение команд
     interpreter->command_list = parse_file(input_file);
-    
     for (int i = 0; i < interpreter->command_list->count; i++) {
         Command cmd = interpreter->command_list->commands[i];
         ExecutionResult result = (ExecutionResult) execute_command(interpreter, &cmd, interpreter->command_list->line_number);

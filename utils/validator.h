@@ -5,7 +5,7 @@
 
 // Проверка целых чисел
 int is_strict_integer(const char *str);
-int parse_strict_integer(const char *str, int *result);
+int parse_strict_positive_integer(const char *str, int *result);
 
 // Проверка диапазона
 int is_in_range(int value, int min, int max);

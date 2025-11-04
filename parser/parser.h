@@ -28,10 +28,11 @@ typedef enum {
 typedef struct {
     CommandType type;
     int line_number;
-
+    int jump_distance;
     union {
         Direction direction;
-        int jump_distance;
+        
+        
  
         struct{
             int width;
@@ -48,8 +49,7 @@ typedef struct {
 typedef struct {
     Command *commands;
     int count;           // Текущее количество команд
-    int capacity; 
-           // Вместимость массива
+    int capacity;        // Вместимость массива
     int line_number;
 } CommandList;
 

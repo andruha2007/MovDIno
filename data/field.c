@@ -27,6 +27,7 @@ Field* create_field(int width, int height){
             field->tiles[i][j].symbol = EMPTY_TILE;
             field->tiles[i][j].base_symbol = EMPTY_TILE;
             field->tiles[i][j].is_colored = 0;
+            field->tiles[i][j].is_dino_placed = 0;
         }
     }
 
@@ -45,11 +46,20 @@ void free_field(Field* field){
 
 
 void print_field(const Field *field){
-    printf("__________DINO-FLEX__________\n");
+    for (int i = 0; i < field->width - 5; i++){
+        printf("_");
+    }
+    printf("DINO-FLEX");
+    for (int i = 0; i < field->width - 5; i++){
+        printf("_");
+    }
+    printf("\n");
 
     for (int i = 0; i < field->height; ++i) {
         for (int j = 0; j < field->width; ++j)
-            if (field->tiles[i][j].symbol == EMPTY_TILE){
+            if (field->tiles[i][j].is_dino_placed){
+                printf("%c ", DINOSAUR);
+            } else if (field->tiles[i][j].symbol == EMPTY_TILE){
                 printf("%c ", field->tiles[i][j].base_symbol);
             } else{
                 printf("%c ", field->tiles[i][j].symbol);
@@ -95,7 +105,7 @@ int is_rock(const Field* field, int x, int y) {
     return field->tiles[y][x].symbol == ROCK;
 }
 
-int set_cell(Field* field, int x, int y, char symbol, int preserve_color) {
+int set_tile(Field* field, int x, int y, char symbol, int preserve_color) {
     if (!is_valid_position(field, x, y)) return 0;
     
     if (preserve_color && field->tiles[y][x].is_colored)
@@ -112,7 +122,18 @@ int save_field(const Field* field, const char* filename) {
         // Записываем поле в файл
     for (int y = 0; y < field->height; y++) {
         for (int x = 0; x < field->width; x++) {
-            fputc(field->tiles[y][x].symbol, file);
+            if (field->tiles[y][x].is_dino_placed == 1){
+                fputc(DINOSAUR, file);
+                fputc(' ', file);
+            } else if (field->tiles[y][x].symbol == EMPTY_TILE){
+                fputc(field->tiles[y][x].base_symbol, file);
+                fputc(' ', file);
+            } else{
+                fputc(field->tiles[y][x].symbol, file);
+                fputc(' ', file);
+            }
+            
+            
         }
         fputc('\n', file); // Новая строка после каждой строки поля
     }
