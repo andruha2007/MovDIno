@@ -46,11 +46,11 @@ void free_field(Field* field){
 
 
 void print_field(const Field *field){
-    for (int i = 0; i < field->width - 5; i++){
+    for (int i = 0; i < field->width - 4; i++){
         printf("_");
     }
     printf("DINO-FLEX");
-    for (int i = 0; i < field->width - 5; i++){
+    for (int i = 0; i < field->width - 4; i++){
         printf("_");
     }
     printf("\n");

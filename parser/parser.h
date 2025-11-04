@@ -31,9 +31,7 @@ typedef struct {
     int jump_distance;
     union {
         Direction direction;
-        
-        
- 
+
         struct{
             int width;
             int height;
@@ -50,7 +48,6 @@ typedef struct {
     Command *commands;
     int count;           // Текущее количество команд
     int capacity;        // Вместимость массива
-    int line_number;
 } CommandList;
 
 Direction parse_direction(const char* dir_str);

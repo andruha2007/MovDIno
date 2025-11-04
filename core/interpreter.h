@@ -41,6 +41,6 @@ void clear_screen(void);
 Interpreter *create_interpreter(void);
 void free_interpreter(Interpreter *interpreter);
 int execute_program(Interpreter *interpreter, const char *input_file, const char *output_file);
-int execute_command(Interpreter *interpreter, Command *cmd, int line_number);
+int execute_command(Interpreter *interpreter, Command *cmd);
 
 #endif

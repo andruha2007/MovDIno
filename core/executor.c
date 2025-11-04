@@ -62,7 +62,7 @@ int execute_move(Field *field, Direction direction, int line_number){
         }
     
     if (!are_valid_coordinates(new_x, new_y, field->width, field->height)){
-        handle_warning("Movement would go out of bounds", line_number); // Такого тоже не будет, динозавр гуляет по тору
+        handle_warning("Movement would go out of bounds", line_number); // Такого тоже не будет, динозавр гуляет по тору (бог грома не доволен)
         return 0;
     }
 
@@ -91,16 +91,14 @@ int execute_paint(Field *field, char color, int line_number){
     field->tiles[field->dino_pos.y][field->dino_pos.x].base_symbol = color;
     field->tiles[field->dino_pos.y][field->dino_pos.x].is_colored = 1;
     
-    return 1; // Клетка накрашена (Куда это она так)
+    return 1; // Клетка накрашена (Куда это она собралась?)
 }
 int execute_jump(Field *field, Direction direction, int distance, int line_number) {
     if (!field)
         handle_error("JUMP must come after SIZE", line_number);
     if (!field->dino_placed)
         handle_error("Cannot jump before dinosaur placement", line_number);
-    
-    //printf("%d %d\n", direction, DIR_RIGHT);
-
+ 
     int new_x = field->dino_pos.x;
     int new_y = field->dino_pos.y;
     
@@ -113,10 +111,9 @@ int execute_jump(Field *field, Direction direction, int distance, int line_numbe
             default: return 0; // По идее такого не будет, просто на всякий, ввод направления проверяется
         }
 
-        //printf("!!!\n");
 
-        if (is_mountain(field, new_x, new_y)) {
-            handle_warning("Cannot move to mountain tile", line_number);
+        if (is_obstacle(field, new_x, new_y)) {
+            handle_warning("Cannot jump on obstacle tile", line_number);
             return 1; // Умный в гору не пойдёт, умный гору обойдёт
         }
         
@@ -155,18 +152,12 @@ int execute_dig(Field *field, Direction direction, int line_number){
             default: return 0; // По идее такого не будет, просто на всякий, ввод направления проверяется
         }
 
-    if (is_hole(field, dig_x, dig_y))
-        handle_warning("The hole has already dug", line_number);
-    
-    if (is_obstacle(field, dig_x, dig_y)) {
-        handle_warning("Cannot dig the obstacle tile", line_number);
+    if (!is_empty_tile(field, dig_x, dig_y)){
+        handle_warning("Cannot dig the tile", line_number);
         return 1;
     }
-    
+
     field->tiles[dig_y][dig_x].symbol = HOLE;
-    field->tiles[dig_y][dig_x].base_symbol = HOLE;
-    field->tiles[dig_y][dig_x].is_colored = 0;
-    
     return 1; // Динозавр вскопал ямку
 }
 
@@ -189,22 +180,146 @@ int execute_mound(Field *field, Direction direction, int line_number){
             default: return 0; // По идее такого не будет, просто на всякий, ввод направления проверяется
         }
 
-    if (is_obstacle(field, mound_x, mound_y)) {
+    if (is_hole(field, mound_x, mound_y)){
+        field->tiles[mound_y][mound_x].symbol = EMPTY_TILE;
+        return 1;
+    } else if (!is_empty_tile(field, mound_x, mound_y)) {
         handle_warning("Cannot do the mountain in that tile", line_number);
+        return 1;
+    }  
+    
+    field->tiles[mound_y][mound_x].symbol = MOUNTAIN;
+    return 1; // Динозавр насыпал гору
+}
+
+int execute_grow(Field *field, Direction direction, int line_number){
+    if (!field)
+        handle_error("GROW must come after SIZE", line_number);
+    if (!field->dino_placed)
+        handle_error("Cannot grow the tree before dinosaur placement", line_number);
+    
+    
+    int grow_x = field->dino_pos.x;
+    int grow_y = field->dino_pos.y;
+    
+    switch (direction) {
+            case DIR_UP:    grow_y = (field->height + grow_y - 1) % field->height; break; // Для тора
+            case DIR_DOWN:  grow_y = (field->height + grow_y + 1) % field->height; break;
+            case DIR_LEFT:  grow_x = (field->width + grow_x - 1) % field->width; break;
+            case DIR_RIGHT: grow_x = (field->width + grow_x + 1) % field->width; break;
+            default: return 0; // По идее такого не будет, просто на всякий, ввод направления проверяется
+        }
+        
+    if (!is_empty_tile(field, grow_x, grow_y)){
+        handle_warning("Cannot do the grow the tree in that tile", line_number);
         return 1;
     }
 
-    if (is_hole(field, mound_x, mound_y)){
-        field->tiles[mound_y][mound_x].symbol = EMPTY_TILE;
-        field->tiles[mound_y][mound_x].base_symbol = EMPTY_TILE;
-    } else {
-        field->tiles[mound_y][mound_x].symbol = MOUNTAIN;
-    }
-
-    return 1; // Динозавр вскопал ямку
+    field->tiles[grow_y][grow_x].symbol = TREE;
+    return 1;
 }
 
-int execute_grow(Field *field, Direction direction, int line_number);
-int execute_cut(Field *field, Direction direction, int line_number);
-int execute_make(Field *field, Direction direction, int line_number);
-int execute_push(Field *field, Direction direction, int line_number);
+int execute_cut(Field *field, Direction direction, int line_number){
+    if (!field)
+        handle_error("CUT must come after SIZE", line_number);
+    if (!field->dino_placed)
+        handle_error("Cannot cut the tree before dinosaur placement", line_number);
+    
+    
+    int cut_x = field->dino_pos.x;
+    int cut_y = field->dino_pos.y;
+    
+    switch (direction) {
+            case DIR_UP:    cut_y = (field->height + cut_y - 1) % field->height; break; // Для тора
+            case DIR_DOWN:  cut_y = (field->height + cut_y + 1) % field->height; break;
+            case DIR_LEFT:  cut_x = (field->width + cut_x - 1) % field->width; break;
+            case DIR_RIGHT: cut_x = (field->width + cut_x + 1) % field->width; break;
+            default: return 0; // По идее такого не будет, просто на всякий, ввод направления проверяется
+        }
+
+    if (!is_tree(field, cut_x, cut_y)){
+        handle_warning("Cannot do the cut the tree in that tile", line_number);
+        return 1;
+    }
+    
+    field->tiles[cut_y][cut_x].symbol = EMPTY_TILE;
+    return 1;
+}
+
+int execute_make(Field *field, Direction direction, int line_number){
+    if (!field)
+        handle_error("MAKE must come after SIZE", line_number);
+    if (!field->dino_placed)
+        handle_error("Cannot make the rock before dinosaur placement", line_number);
+    
+    
+    int grow_x = field->dino_pos.x;
+    int grow_y = field->dino_pos.y;
+    
+    switch (direction) {
+            case DIR_UP:    grow_y = (field->height + grow_y - 1) % field->height; break; // Для тора
+            case DIR_DOWN:  grow_y = (field->height + grow_y + 1) % field->height; break;
+            case DIR_LEFT:  grow_x = (field->width + grow_x - 1) % field->width; break;
+            case DIR_RIGHT: grow_x = (field->width + grow_x + 1) % field->width; break;
+            default: return 0; // По идее такого не будет, просто на всякий, ввод направления проверяется
+        }
+        
+    if (!is_empty_tile(field, grow_x, grow_y)){
+        handle_warning("Cannot make the rock in that tile", line_number);
+        return 1;
+    }
+
+    field->tiles[grow_y][grow_x].symbol = ROCK;
+    return 1;
+}
+
+int execute_push(Field *field, Direction direction, int line_number){
+    if (!field)
+        handle_error("MAKE must come after SIZE", line_number);
+    if (!field->dino_placed)
+        handle_error("Cannot make the rock before dinosaur placement", line_number);
+    
+    
+    int rock_x = field->dino_pos.x;
+    int rock_y = field->dino_pos.y;
+    
+    int push_x = field->dino_pos.x;
+    int push_y = field->dino_pos.y;
+
+    switch (direction) {
+            case DIR_UP:
+                rock_y = (field->height + push_y - 1) % field->height; 
+                push_y = (field->height + push_y - 2) % field->height; 
+                break; // Для тора
+            case DIR_DOWN:
+                rock_y = (field->height + push_y + 1) % field->height;
+                push_y = (field->height + push_y + 2) % field->height; 
+                break;
+            case DIR_LEFT:
+                rock_x = (field->width + push_x - 1) % field->width;
+                push_x = (field->width + push_x - 2) % field->width;
+                break;
+            case DIR_RIGHT:
+                rock_x = (field->width + push_x + 1) % field->width;
+                push_x = (field->width + push_x + 2) % field->width; 
+                break;
+            default: return 0; // По идее такого не будет, просто на всякий, ввод направления проверяется
+        }
+        
+    if (!is_rock(field, rock_x, rock_y)){
+        handle_warning("Cannot push the rock in that tile", line_number);
+        return 1;
+    } else if (is_hole(field, push_x, push_y)){
+        field->tiles[push_y][push_x].symbol = EMPTY_TILE;
+        field->tiles[rock_y][rock_x].symbol = EMPTY_TILE;
+        return 1;
+    } else if (!is_empty_tile(field, push_x, push_y)){
+        handle_warning("Cannot push the rock in that tile", line_number);
+        return 1;
+    }
+
+    field->tiles[push_y][push_x].symbol = ROCK;
+    field->tiles[rock_y][rock_x].symbol = EMPTY_TILE;
+    return 1;
+}
+

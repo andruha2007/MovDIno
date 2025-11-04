@@ -24,15 +24,13 @@ Command parse_command(const char *line, int line_number) {
 
     cmd.type = CMD_UNKNOWN;
     cmd.parametrs.direction = DIR_NONE;
-    cmd.jump_distance = 0;
-    cmd.line_number = line_number;
  
     if (has_left_spaces(line)){
         handle_error("Left spaceces are not allowed", line_number);
         return cmd;
     }
 
-    if (is_comment_line(line)){
+    if (is_comment_line(line) || is_whitespace_only(line)){
         cmd.type = CMD_COMMENT;
         return cmd;
     }
@@ -79,7 +77,7 @@ CommandList* create_command_list(void) {
     
     list->count = 0;
     list->capacity = 10;
-    list->commands = (Command*)malloc(list->capacity * sizeof(Command));
+    list->commands = (Command*) malloc(list->capacity * sizeof(Command));
     
     return list;
 }
@@ -122,13 +120,14 @@ CommandList *parse_file(const char* filename) {
         line[strcspn(line, "\n")] = '\0';
         
         Command cmd = parse_command(line, line_number);
+        cmd.line_number = line_number;
         if (cmd.type != CMD_COMMENT && cmd.type != CMD_UNKNOWN) {
             // Добавляем команду в список
             if (list->count >= list->capacity) {
                 list->capacity *= 2;
                 list->commands = realloc(list->commands, list->capacity * sizeof(Command));
             }
-            list->line_number = line_number;
+
             list->commands[list->count++] = cmd;
         } else if (cmd.type == CMD_UNKNOWN)
             handle_error("Invalid command", line_number);   

@@ -65,50 +65,65 @@ void free_interpreter(Interpreter* interpreter) {
     free(interpreter);
 }
 
-int execute_command(Interpreter* interpreter, Command *cmd, int line_number) {
+int execute_command(Interpreter* interpreter, Command *cmd) {
     if (!interpreter) return EXECUTION_ERROR;
     
     ExecutionResult result = EXECUTION_SUCCESS;
     
     switch (cmd->type) {
         case CMD_SIZE:
-            if (!execute_size(&interpreter->field, cmd->parametrs.size.width, cmd->parametrs.size.height, interpreter->command_list->line_number)) {
+            if (!execute_size(&interpreter->field, cmd->parametrs.size.width, cmd->parametrs.size.height, cmd->line_number)) {
                 result = EXECUTION_ERROR;
             }
             break;
             
         case CMD_START:
-            if (!execute_start(interpreter->field, cmd->parametrs.position.x, cmd->parametrs.position.y, interpreter->command_list->line_number)) {
+            if (!execute_start(interpreter->field, cmd->parametrs.position.x, cmd->parametrs.position.y, cmd->line_number)) {
                 result = EXECUTION_ERROR;
             }
             break;
             
         case CMD_MOVE:
-            if (!execute_move(interpreter->field, cmd->parametrs.direction, interpreter->command_list->line_number))
+            if (!execute_move(interpreter->field, cmd->parametrs.direction, cmd->line_number))
                 result = EXECUTION_ERROR;
             break;
 
         case CMD_PAINT:
-            if (!execute_paint(interpreter->field, cmd->parametrs.color_char, interpreter->command_list->line_number)) 
+            if (!execute_paint(interpreter->field, cmd->parametrs.color_char, cmd->line_number)) 
                 result = EXECUTION_ERROR;
             break;
             
         case CMD_JUMP:
-            if (!execute_jump(interpreter->field, cmd->parametrs.direction, cmd->jump_distance, interpreter->command_list->line_number))
+            if (!execute_jump(interpreter->field, cmd->parametrs.direction, cmd->jump_distance, cmd->line_number))
                 result = EXECUTION_ERROR;
             break;
         case CMD_DIG:
-            if (!execute_dig(interpreter->field, cmd->parametrs.direction, interpreter->command_list->line_number))
+            if (!execute_dig(interpreter->field, cmd->parametrs.direction, cmd->line_number))
                 result = EXECUTION_ERROR;
             break;
 
         case CMD_MOUND:
-            if (!execute_mound(interpreter->field, cmd->parametrs.direction, interpreter->command_list->line_number))
+            if (!execute_mound(interpreter->field, cmd->parametrs.direction, cmd->line_number))
                 result = EXECUTION_ERROR;
             break;
-
+        case CMD_GROW:
+            if (!execute_grow(interpreter->field, cmd->parametrs.direction, cmd->line_number))
+                result = EXECUTION_ERROR;
+            break;
+        case CMD_CUT:
+            if (!execute_cut(interpreter->field, cmd->parametrs.direction, cmd->line_number))
+                result = EXECUTION_ERROR;
+            break;
+        case CMD_MAKE:
+            if (!execute_make(interpreter->field, cmd->parametrs.direction, cmd->line_number))
+                result = EXECUTION_ERROR;
+            break;
+            case CMD_PUSH:
+            if (!execute_push(interpreter->field, cmd->parametrs.direction, cmd->line_number))
+                result = EXECUTION_ERROR;
+            break;
         case CMD_UNKNOWN:
-            handle_warning("Skipping unknown command", interpreter->command_list->line_number);
+            handle_warning("Skipping unknown command", cmd->line_number);
             result = EXECUTION_ERROR;
             break;
             
@@ -117,7 +132,7 @@ int execute_command(Interpreter* interpreter, Command *cmd, int line_number) {
             break;
             
         default:
-            handle_warning("Unimplemented command", interpreter->command_list->line_number);
+            handle_warning("Unimplemented command", cmd->line_number);
             result = EXECUTION_WARNING;
             break;
     }
@@ -146,7 +161,7 @@ int execute_program(Interpreter* interpreter, const char* input_file, const char
     interpreter->command_list = parse_file(input_file);
     for (int i = 0; i < interpreter->command_list->count; i++) {
         Command cmd = interpreter->command_list->commands[i];
-        ExecutionResult result = (ExecutionResult) execute_command(interpreter, &cmd, interpreter->command_list->line_number);
+        ExecutionResult result = (ExecutionResult) execute_command(interpreter, &cmd);
         
         if (result == EXECUTION_ERROR) {
             // При критической ошибке всё равно сохраняем текущее состояние
