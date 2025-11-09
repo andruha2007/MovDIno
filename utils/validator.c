@@ -52,8 +52,7 @@ int is_valid_color_char(char c){
 }
 
 int is_valid_ceil_symbol(char c){
-    return c == '_' || c == '#' || c == '%' || c == '%' ||
-           c == '^' || c == '&' || c == '@'
+    return c == '_' || c == '#' || c == '%' || c == '^' || c == '&' || c == '@'
            || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 

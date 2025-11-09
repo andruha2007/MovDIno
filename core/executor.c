@@ -7,6 +7,7 @@
 #include "../data/field.h"
 #include "../parser/parser.h"
 #include "../utils/common.h"
+#include "./interpreter.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,7 +32,9 @@ int execute_start(Field *field, int x, int y, int line_number){
     if (!are_valid_coordinates(x, y, field->width, field->height))
         handle_error("Invalid start position", line_number);
 
-    
+    if (field->dino_placed)
+        handle_error("START command can only be used once", line_number);
+
     if (!is_empty_tile(field, x, y))
         handle_error("Start position must be empty", line_number);
 
@@ -48,7 +51,7 @@ int execute_move(Field *field, Direction direction, int line_number){
     if (!field)
         handle_error("MOVE must come after SIZE", line_number);
     if (!field->dino_placed)
-        handle_error("Cannot move dinosaur before START", line_number);
+        handle_error("Cannot move paint before dinosaur placement", line_number);
 
     
     int new_x = field->dino_pos.x;
@@ -161,7 +164,6 @@ int execute_dig(Field *field, Direction direction, int line_number){
     field->tiles[dig_y][dig_x].symbol = HOLE;
     return 1; // Динозавр вскопал ямку
 }
-
 
 int execute_mound(Field *field, Direction direction, int line_number){
     if (!field)
@@ -376,8 +378,6 @@ int execute_load(Field **field, const char *filename, int line_number) {
                 (*field)->tiles[y][x].symbol = c;
                 (*field)->tiles[y][x].base_symbol = EMPTY_TILE;
             }
-            
-            
 
             if (c == DINOSAUR) {
                 (*field)->dino_pos.x = x;

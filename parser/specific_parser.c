@@ -8,7 +8,10 @@
 #include "../utils/validator.h"
 
 Command parse_size_command(int line_number){
-    Command cmd = {CMD_SIZE};
+    Command cmd = {0};
+    cmd.type = CMD_SIZE;
+    cmd.line_number = line_number;
+
     char *width_str = strtok(NULL, " ");
     char *height_str = strtok(NULL, " ");
 
@@ -38,7 +41,9 @@ Command parse_size_command(int line_number){
 }
 
 Command parse_start_command(int line_number){
-    Command cmd = {CMD_START};
+    Command cmd = {0};
+    cmd.type = CMD_START;
+    cmd.line_number = line_number;
     char* x_str = strtok(NULL, " ");
     char* y_str = strtok(NULL, " ");
 
@@ -60,7 +65,10 @@ Command parse_start_command(int line_number){
 }
 
 Command parse_move_command(int line_number){
-    Command cmd = {CMD_MOVE};
+    Command cmd = {0};
+    cmd.type = CMD_MOVE;
+    cmd.line_number = line_number;
+
     char *dir_str = strtok(NULL, " ");
 
     if (!is_valid_direction(dir_str)){
@@ -73,7 +81,9 @@ Command parse_move_command(int line_number){
 }
 
 Command parse_paint_command(int line_number){
-    Command cmd = {CMD_PAINT};
+    Command cmd = {0};
+    cmd.type = CMD_PAINT;
+    cmd.line_number = line_number;
     char *color_str = strtok(NULL, " ");
     
     if (!color_str || strlen(color_str) != 1){
@@ -92,7 +102,9 @@ Command parse_paint_command(int line_number){
 }
 
 Command parse_jump_command(int line_number){
-    Command cmd = {CMD_JUMP};
+    Command cmd = {0};
+    cmd.type = CMD_JUMP;
+    cmd.line_number = line_number;
     char *dir_str = strtok(NULL, " ");
     char *dist_str = strtok(NULL, " ");
     
@@ -109,15 +121,14 @@ Command parse_jump_command(int line_number){
     
     cmd.parametrs.direction = parse_direction(dir_str);
     cmd.jump_distance = distance;
-    
-    
-    //printf("%s, %d\n", dir_str, distance);
 
     return cmd;
 }
 
 Command parse_dig_command(int line_number){
-    Command cmd = {CMD_DIG};
+    Command cmd = {0};
+    cmd.type = CMD_DIG;
+    cmd.line_number = line_number;
     char *dir_str = strtok(NULL, " ");
 
     if (!is_valid_direction(dir_str)){
@@ -131,7 +142,9 @@ Command parse_dig_command(int line_number){
 }
 
 Command parse_mound_command(int line_number){
-    Command cmd = {CMD_MOUND};
+    Command cmd = {0};
+    cmd.type = CMD_MOUND;
+    cmd.line_number = line_number;
     char *dir_str = strtok(NULL, " ");
 
     if (!is_valid_direction(dir_str)){
@@ -145,7 +158,9 @@ Command parse_mound_command(int line_number){
 }
 
 Command parse_grow_command(int line_number){
-    Command cmd = {CMD_GROW};
+    Command cmd = {0};
+    cmd.type = CMD_GROW;
+    cmd.line_number = line_number;
     char *dir_str = strtok(NULL, " ");
 
     if (!is_valid_direction(dir_str)){
@@ -159,7 +174,9 @@ Command parse_grow_command(int line_number){
 }
 
 Command parse_cut_command(int line_number){
-    Command cmd = {CMD_CUT};
+    Command cmd = {0};
+    cmd.type = CMD_CUT;
+    cmd.line_number = line_number;
     char *dir_str = strtok(NULL, " ");
 
     if (!is_valid_direction(dir_str)){
@@ -173,7 +190,9 @@ Command parse_cut_command(int line_number){
 }
 
 Command parse_make_command(int line_number){
-    Command cmd = {CMD_MAKE};
+    Command cmd = {0};
+    cmd.type = CMD_MAKE;
+    cmd.line_number = line_number;
     char *dir_str = strtok(NULL, " ");
 
     if (!is_valid_direction(dir_str)){
@@ -201,7 +220,10 @@ Command parse_push_command(int line_number){
 }
 
 Command parse_load_command(int line_number){
-    Command cmd = {CMD_LOAD};
+    Command cmd = {0};
+    cmd.type = CMD_LOAD;
+    cmd.line_number = line_number;
+
     char *filename = strtok(NULL, " ");
 
     if (!filename || strlen(filename) == 0){
@@ -214,5 +236,83 @@ Command parse_load_command(int line_number){
 
     strncpy(cmd.parametrs.filename, filename, MAX_FILENAME - 1);
     cmd.parametrs.filename[MAX_FILENAME - 1] = '\0';
+    return cmd;
+}
+
+Command parse_if_command(int line_number){
+
+    Command cmd = {0};
+    cmd.type = CMD_IF;
+    cmd.line_number = line_number;
+
+    char* token;
+
+    token = strtok(NULL, " \t\r\n");
+    if (!token || strcmp(token, "CELL") != 0) {
+        handle_error("Expected 'CELL' after IF", line_number);
+        cmd.type = CMD_UNKNOWN;
+        return cmd;
+    }
+
+    char* x_str = strtok(NULL, " \t\r\n");
+    char* y_str = strtok(NULL, " \t\r\n");
+    if (!x_str || !y_str) {
+        handle_error("Missing coordinates in IF", line_number);
+        cmd.type = CMD_UNKNOWN;
+        return cmd;
+    }
+
+    int x, y;
+    if (parse_strict_positive_integer(x_str, &x) == -1 ||
+        parse_strict_positive_integer(y_str, &y) == -1) {
+        handle_error("Invalid coordinates in IF", line_number);
+        cmd.type = CMD_UNKNOWN;
+        return cmd;
+    }
+
+    token = strtok(NULL, " \t\r\n");
+    if (!token || strcmp(token, "IS") != 0) {
+        handle_error("Expected 'IS' in IF", line_number);
+        cmd.type = CMD_UNKNOWN;
+        return cmd;
+    }
+
+    char* symbol_str = strtok(NULL, " \t\r\n");
+    if (!symbol_str || strlen(symbol_str) != 1 || !is_valid_ceil_symbol(symbol_str[0])) {
+        handle_error("Invalid symbol in IF", line_number);
+        cmd.type = CMD_UNKNOWN;
+        return cmd;
+    }
+
+    char expected = symbol_str[0];
+
+    token = strtok(NULL, " \t\r\n");
+    if (!token || strcmp(token, "THEN") != 0) {
+        handle_error("Expected 'THEN' in IF", line_number);
+        cmd.type = CMD_UNKNOWN;
+        return cmd;
+    }
+
+    char* then_line = strtok(NULL, "\r\n"); 
+    if (!then_line) {
+        handle_error("Missing command after THEN", line_number);
+        cmd.type = CMD_UNKNOWN;
+        return cmd;
+    }
+
+    while (*then_line == ' ' || *then_line == '\t') then_line++;
+    if (*then_line == '\0') {
+        handle_error("Empty command after THEN", line_number);
+        cmd.type = CMD_UNKNOWN;
+        return cmd;
+    }
+
+    Command then_cmd = parse_command(then_line, line_number);
+    if (then_cmd.type == CMD_UNKNOWN) {
+        cmd.type = CMD_UNKNOWN;
+        return cmd;
+    }
+
+    cmd = parse_command(then_line, line_number);
     return cmd;
 }

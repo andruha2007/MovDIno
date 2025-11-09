@@ -3,12 +3,15 @@
 #ifndef STRUCTURES_H
 #define STRUCTURES_H
 
+
+
 #define DINOSAUR '#'
 #define EMPTY_TILE '_'
 #define MOUNTAIN '^'
 #define HOLE '%'
 #define ROCK '@'
 #define TREE '&'
+
 
 typedef struct { // Структура позиция динозавра
     int x;

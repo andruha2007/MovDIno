@@ -30,6 +30,4 @@ int execute_push(Field *field, Direction direction, int line_number);
 
 int execute_load(Field **field, const char *filename, int line_number);
 
-
-
 #endif

@@ -26,7 +26,6 @@ typedef enum {
     CMD_COMMENT
 } CommandType;
 
-
 typedef struct {
     CommandType type;
     int line_number;
@@ -43,6 +42,8 @@ typedef struct {
 
         char filename[MAX_FILENAME]; // EXEC LOAD
         char color_char;
+
+        char then_line[MAX_FILENAME];
     } parametrs;
 
 } Command;
