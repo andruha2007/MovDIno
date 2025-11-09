@@ -26,7 +26,6 @@ typedef enum { // Обозначение направления
 typedef struct {
     char symbol; // Символ, который находится в клетке в моменте
     char base_symbol; // Для крашенной клетки
-    int is_colored;
     int is_dino_placed;
 } Tile;
 

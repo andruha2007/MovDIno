@@ -32,4 +32,8 @@ Command parse_make_command(int line_number);
 
 Command parse_push_command(int line_number);
 
+Command parse_exec_command(int line_number);
+
+Command parse_load_command(int line_number);
+
 #endif

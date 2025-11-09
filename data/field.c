@@ -26,7 +26,6 @@ Field* create_field(int width, int height){
         for (int j = 0; j < width; j++){
             field->tiles[i][j].symbol = EMPTY_TILE;
             field->tiles[i][j].base_symbol = EMPTY_TILE;
-            field->tiles[i][j].is_colored = 0;
             field->tiles[i][j].is_dino_placed = 0;
         }
     }
@@ -105,15 +104,15 @@ int is_rock(const Field* field, int x, int y) {
     return field->tiles[y][x].symbol == ROCK;
 }
 
-int set_tile(Field* field, int x, int y, char symbol, int preserve_color) {
-    if (!is_valid_position(field, x, y)) return 0;
+// int set_tile(Field* field, int x, int y, char symbol, int preserve_color) {
+//     if (!is_valid_position(field, x, y)) return 0;
     
-    if (preserve_color && field->tiles[y][x].is_colored)
-        field->tiles[y][x].base_symbol = symbol;
-    else
-        field->tiles[y][x].symbol = symbol;
-    return 1;
-}
+//     if (preserve_color && field->tiles[y][x].is_colored)
+//         field->tiles[y][x].base_symbol = symbol;
+//     else
+//         field->tiles[y][x].symbol = symbol;
+//     return 1;
+// }
 
 int save_field(const Field* field, const char* filename) {
     FILE* file = fopen(filename, "w");

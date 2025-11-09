@@ -6,10 +6,11 @@
 #include "../utils/validator.h"
 #include "../data/field.h"
 #include "../parser/parser.h"
+#include "../utils/common.h"
 
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
 
 int execute_size(Field** field, int width, int height, int line_number) {
     if (*field)
@@ -38,7 +39,7 @@ int execute_start(Field *field, int x, int y, int line_number){
     field->dino_pos.x = x;
     field->dino_pos.y = y;
     field->dino_placed = 1;
-    field->tiles[x][y].is_dino_placed = 1;
+    field->tiles[y][x].is_dino_placed = 1;
 
     return 1; // Динозавр посажен в клетку
 }
@@ -52,7 +53,7 @@ int execute_move(Field *field, Direction direction, int line_number){
     
     int new_x = field->dino_pos.x;
     int new_y = field->dino_pos.y;
-
+    
     switch (direction) {
             case DIR_UP:    new_y = (field->height + new_y - 1) % field->height; break; // Для тора
             case DIR_DOWN:  new_y = (field->height + new_y + 1) % field->height; break;
@@ -89,10 +90,10 @@ int execute_paint(Field *field, char color, int line_number){
         handle_error("Cannot paint before dinosaur placement", line_number);
 
     field->tiles[field->dino_pos.y][field->dino_pos.x].base_symbol = color;
-    field->tiles[field->dino_pos.y][field->dino_pos.x].is_colored = 1;
     
     return 1; // Клетка накрашена (Куда это она собралась?)
 }
+
 int execute_jump(Field *field, Direction direction, int distance, int line_number) {
     if (!field)
         handle_error("JUMP must come after SIZE", line_number);
@@ -323,3 +324,73 @@ int execute_push(Field *field, Direction direction, int line_number){
     return 1;
 }
 
+int execute_load(Field **field, const char *filename, int line_number) {
+    if (*field) {
+        handle_error("LOAD must be the first command", line_number);
+        return 0;
+    }
+
+    FILE *file = fopen(filename, "r");
+    if (!file) {
+        handle_error("Failed to open file for LOAD", line_number);
+        return 0;
+    }
+
+    // Определяем размеры из первой строки
+    int width = 0, height = 0;
+    char buffer[1024];
+    if (fgets(buffer, sizeof(buffer), file)) {
+        char *ptr = buffer;
+        while (*ptr) {
+            if (*ptr != ' ' && *ptr != '\n' && *ptr != '\r') width++;
+            else if (*ptr == '\n') break;
+            ptr++;
+        }
+        
+        height = 1;
+        while (fgets(buffer, sizeof(buffer), file)) {
+            height++;
+        }
+    }
+    rewind(file);
+
+    // Создаём поле
+    *field = create_field(width, height);
+    if (!*field) {
+        fclose(file);
+        handle_error("Failed to create field in LOAD", line_number);
+        return 0;
+    }
+
+    // Читаем построчно
+    for (int y = 0; y < height; y++) {
+        if (!fgets(buffer, sizeof(buffer), file)) break;
+        char *token = strtok(buffer, " ");
+        int x = 0;
+        while (token && x < width) {
+            char c = token[0];
+            if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')){
+                (*field)->tiles[y][x].base_symbol = c;
+                (*field)->tiles[y][x].symbol = EMPTY_TILE;
+            } else {
+                (*field)->tiles[y][x].symbol = c;
+                (*field)->tiles[y][x].base_symbol = EMPTY_TILE;
+            }
+            
+            
+
+            if (c == DINOSAUR) {
+                (*field)->dino_pos.x = x;
+                (*field)->dino_pos.y = y;
+                (*field)->dino_placed = 1;
+                (*field)->tiles[y][x].is_dino_placed = 1;
+                (*field)->tiles[y][x].symbol = EMPTY_TILE;
+            }
+            token = strtok(NULL, " \t\r\n");
+            x++;
+        }
+    }
+
+    fclose(file);
+    return 1;
+}

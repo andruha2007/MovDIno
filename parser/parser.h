@@ -3,6 +3,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include "../utils/common.h"
 #include "../data/structures.h"
 
 typedef enum {
@@ -25,6 +26,7 @@ typedef enum {
     CMD_COMMENT
 } CommandType;
 
+
 typedef struct {
     CommandType type;
     int line_number;
@@ -39,8 +41,10 @@ typedef struct {
 
         Position position;
 
+        char filename[MAX_FILENAME]; // EXEC LOAD
         char color_char;
     } parametrs;
+
 } Command;
 
 

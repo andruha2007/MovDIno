@@ -9,6 +9,7 @@
 #define MIN_HEIGHT 10
 #define MAX_FILENAME 256
 #define MAX_LINE_LENGTH 1024
+#define MAX_EXEC_DEPTH 10
 
 #define COLOR_RED     "\x1b[91m"
 #define COLOR_GREEN   "\x1b[92m"

@@ -118,8 +118,12 @@ int execute_command(Interpreter* interpreter, Command *cmd) {
             if (!execute_make(interpreter->field, cmd->parametrs.direction, cmd->line_number))
                 result = EXECUTION_ERROR;
             break;
-            case CMD_PUSH:
+        case CMD_PUSH:
             if (!execute_push(interpreter->field, cmd->parametrs.direction, cmd->line_number))
+                result = EXECUTION_ERROR;
+            break;
+        case CMD_LOAD:
+            if (!execute_load(&interpreter->field, cmd->parametrs.filename, cmd->line_number))
                 result = EXECUTION_ERROR;
             break;
         case CMD_UNKNOWN:

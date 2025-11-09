@@ -4,6 +4,7 @@
 #define EXECUTOR_H
 
 #include "../data/field.h"
+#include "interpreter.h"
 
 int execute_size(Field **field, int width, int height, int line_number);
 
@@ -26,6 +27,8 @@ int execute_cut(Field *field, Direction direction, int line_number);
 int execute_make(Field *field, Direction direction, int line_number);
 
 int execute_push(Field *field, Direction direction, int line_number);
+
+int execute_load(Field **field, const char *filename, int line_number);
 
 
 

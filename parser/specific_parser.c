@@ -199,3 +199,20 @@ Command parse_push_command(int line_number){
 
     return cmd;
 }
+
+Command parse_load_command(int line_number){
+    Command cmd = {CMD_LOAD};
+    char *filename = strtok(NULL, " ");
+
+    if (!filename || strlen(filename) == 0){
+        handle_error("Missing filename in LOAD command", line_number);
+        return (Command){CMD_UNKNOWN};
+    } else if (strlen(filename) >= MAX_FILENAME) {
+        handle_error("Filename too long in LOAD command", line_number);
+        return (Command){CMD_UNKNOWN};
+    }
+
+    strncpy(cmd.parametrs.filename, filename, MAX_FILENAME - 1);
+    cmd.parametrs.filename[MAX_FILENAME - 1] = '\0';
+    return cmd;
+}

@@ -76,3 +76,9 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
 }
+
+// cd /c/Code_Territory/C_Code/movdino_lab
+// 
+// gcc -I. movdino.c core/interpreter.c core/executor.c data/field.c parser/parser.c parser/specific_parser.c utils/errors.c utils/validator.c -o movdino.exe
+//
+// ./movdino.exe input.txt output.txt --no-display  

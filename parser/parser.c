@@ -1,6 +1,5 @@
 // parser.c
 
-#include "parser.h"
 #include "../utils/common.h"
 #include <string.h>
 #include "../utils/validator.h"
@@ -9,6 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../utils/errors.h"
+
+
 
 Direction parse_direction(const char* dir_str) {
     if (!dir_str) return DIR_NONE;
@@ -66,6 +67,8 @@ Command parse_command(const char *line, int line_number) {
         return parse_make_command(line_number);
     else if (strcmp(token, "PUSH") == 0)
         return parse_push_command(line_number);
+    else if (strcmp(token, "LOAD") == 0)
+        return parse_load_command(line_number);
     handle_error("Unknown command", line_number);
     return cmd;
 }
@@ -111,9 +114,9 @@ CommandList *parse_file(const char* filename) {
         fclose(file);
         return NULL;
     }
-    
-    char line[MAX_LINE_LENGTH] = {0};
     int line_number = 0;
+    char line[MAX_LINE_LENGTH] = {0};
+
     while (fgets(line, sizeof(line), file) != NULL) {
         line_number++;
         // Удаляем символ новой строки
@@ -136,3 +139,4 @@ CommandList *parse_file(const char* filename) {
     fclose(file);
     return list;
 }
+
