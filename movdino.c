@@ -33,7 +33,6 @@ int parse_arguments(int argc, char* argv[], InterpreterConfig* interpreter) {
                 handle_error("Interval should be positive ", 0);
             }
             if (atoi(argv[i]) == 0){
-                // printf("%d", atoi(argv[i]));
                 handle_error("Interval should be positive ", 0);
             }
             interpreter->display_interval = atoi(argv[i]);   
