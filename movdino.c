@@ -2,6 +2,7 @@
 
 #include "core/interpreter.h"
 #include "utils/errors.h"
+#include "utils/validator.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,7 +29,14 @@ int parse_arguments(int argc, char* argv[], InterpreterConfig* interpreter) {
     
     for (int i = 3; i < argc; i++) {
         if (strcmp(argv[i], "--interval") == 0 && i + 1 < argc) {
-            interpreter->display_interval = atoi(argv[++i]);
+            if (is_strict_integer(argv[++i]) == -1){
+                handle_error("Interval should be positive ", 0);
+            }
+            if (atoi(argv[i]) == 0){
+                // printf("%d", atoi(argv[i]));
+                handle_error("Interval should be positive ", 0);
+            }
+            interpreter->display_interval = atoi(argv[i]);   
         }
         else if (strcmp(argv[i], "--no-display") == 0) {
             interpreter->should_display = 0;
@@ -59,6 +67,7 @@ int main(int argc, char* argv[]) {
     if (!interpreter) {
         handle_error("Failed to create interpreter", 0);  // Критическая ошибка
     }
+    interpreter->config = config;
 
     const char* input_file = argv[1];
     const char* output_file = argv[2];
