@@ -11,20 +11,6 @@
 #include "../parser/parser.h"
 #include <synchapi.h>
 
-
-
-#ifdef _WIN32
-    #include <windows.h>
-    #define CLEAR_SCREEN "cls"
-#else
-    #include <unistd.h>
-    #define CLEAR_SCREEN "clear"
-#endif
-
-void clear_screen(void) {
-    system(CLEAR_SCREEN);
-}
-
 void sleep_ms(int milliseconds) {
 #ifdef _WIN32
     Sleep(milliseconds);
