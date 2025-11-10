@@ -16,12 +16,6 @@
     #define CLEAR_SCREEN "clear"
 #endif
 
-void clear_screen(void) {
-    system(CLEAR_SCREEN);
-}
-
-
-
 void print_usage(const char* program_name) {
     printf("Usage: %s input.txt output.txt [options]\n", program_name);
     printf("Options:\n");
