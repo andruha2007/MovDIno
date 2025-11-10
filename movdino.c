@@ -7,6 +7,21 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+#ifdef _WIN32
+    #include <windows.h>
+    #define CLEAR_SCREEN "cls"
+#else
+    #include <unistd.h>
+    #define CLEAR_SCREEN "clear"
+#endif
+
+void clear_screen(void) {
+    system(CLEAR_SCREEN);
+}
+
+
+
 void print_usage(const char* program_name) {
     printf("Usage: %s input.txt output.txt [options]\n", program_name);
     printf("Options:\n");
@@ -36,17 +51,16 @@ int parse_arguments(int argc, char* argv[], InterpreterConfig* interpreter) {
                 handle_error("Interval should be positive ", 0);
             }
             interpreter->display_interval = atoi(argv[i]);   
-        }
-        else if (strcmp(argv[i], "--no-display") == 0) {
+        } else if (strcmp(argv[i], "--no-display") == 0) {
             interpreter->should_display = 0;
-        }
-        else if (strcmp(argv[i], "--no-save") == 0) {
+        } else if (strcmp(argv[i], "--no-save") == 0) {
             interpreter->should_save = 0;
-        }
-        else if (strcmp(argv[i], "--help") == 0) {
+        } else if (strcmp(argv[i], CLEAR_SCREEN) == 0) {
+            system(CLEAR_SCREEN);
+        } else if (strcmp(argv[i], "--help") == 0) {
             print_usage(argv[0]);
             return 0;
-        }
+        } 
     }
     
     return 1;
