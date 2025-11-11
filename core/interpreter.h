@@ -15,10 +15,14 @@ typedef struct{
     int should_display;
     int should_save;
     int display_interval;
+    
 } InterpreterConfig;
 
 typedef struct{
     Field *field;
+    Field *middle_field;
+    Field *history_field;
+    
     Command *command;
     CommandList *command_list;
     InterpreterConfig config;

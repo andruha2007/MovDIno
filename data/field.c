@@ -5,6 +5,7 @@
 #include "../utils/common.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../utils/errors.h"
 
 Field* create_field(int width, int height){
@@ -33,6 +34,31 @@ Field* create_field(int width, int height){
     return field;
 }
 
+Field* deep_copy_field(const Field* src) {
+    if (!src) return NULL;
+
+    Field* dst = malloc(sizeof(Field));
+    if (!dst) return NULL;
+
+    // Копируем все поля
+    dst->width = src->width;
+    dst->height = src->height;
+    dst->dino_pos.x = src->dino_pos.x;
+    dst->dino_pos.y = src->dino_pos.y;
+    dst->dino_placed = src->dino_placed;
+
+    // Выделяем и копируем единый блок памяти
+    size_t size = src->width * src->height;
+    dst->tiles = malloc(size);
+    if (!dst->tiles) {
+        free(dst);
+        return NULL;
+    }
+    memcpy(dst->tiles, src->tiles, size);
+
+    return dst;
+}
+
 void free_field(Field* field){
     if(!field) return;
 
@@ -45,11 +71,11 @@ void free_field(Field* field){
 
 
 void print_field(const Field *field){
-    for (int i = 0; i < field->width - 4; i++){
+    for (int i = 0; i < field->width - 5; i++){
         printf("_");
     }
     printf("DINO-FLEX");
-    for (int i = 0; i < field->width - 4; i++){
+    for (int i = 0; i < field->width - 5; i++){
         printf("_");
     }
     printf("\n");

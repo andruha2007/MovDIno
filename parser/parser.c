@@ -71,6 +71,8 @@ Command parse_command(const char *line, int line_number) {
         return parse_if_command(line_number);
     else if (strcmp(token, "LOAD") == 0)
         return parse_load_command(line_number);
+    else if (strcmp(token, "UNDO") == 0)
+        return parse_undo_command(line_number);
     handle_error("Unknown command", line_number);
     return cmd;
 }
@@ -141,3 +143,4 @@ CommandList *parse_file(const char* filename) {
     fclose(file);
     return list;
 }
+

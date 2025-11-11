@@ -43,9 +43,9 @@ typedef struct {
         char filename[MAX_FILENAME]; // EXEC LOAD
         char color_char;
 
-        char then_line[MAX_FILENAME];
+        
     } parametrs;
-
+    char then_line[MAX_LINE_LENGTH];
 } Command;
 
 

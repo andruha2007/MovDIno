@@ -13,7 +13,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-int execute_size(Field** field, int width, int height, int line_number) {
+
+int execute_size(Field** field, Field** history_field, int width, int height, int line_number) {
     if (*field)
         handle_error("SIZE command can only be used once", line_number);
     
@@ -22,10 +23,14 @@ int execute_size(Field** field, int width, int height, int line_number) {
     if (!*field)
         handle_error("Failed to create field", line_number);
 
+    *history_field = create_field(width, height);
+    if (!*history_field)
+        handle_error("Failed to create field for saving history of changings", line_number);
+
     return 1; // Поле создано
 }
 
-int execute_start(Field *field, int x, int y, int line_number){
+int execute_start(Field *field, Field* history_field, int x, int y, int line_number){
     if (!field)
         handle_error("START must come after SIZE", line_number);
     
@@ -38,6 +43,7 @@ int execute_start(Field *field, int x, int y, int line_number){
     if (!is_empty_tile(field, x, y))
         handle_error("Start position must be empty", line_number);
 
+    history_field = deep_copy_field(field);
     
     field->dino_pos.x = x;
     field->dino_pos.y = y;
@@ -47,7 +53,7 @@ int execute_start(Field *field, int x, int y, int line_number){
     return 1; // Динозавр посажен в клетку
 }
 
-int execute_move(Field *field, Direction direction, int line_number){
+int execute_move(Field *field, Field *history_field, Direction direction, int line_number){
     if (!field)
         handle_error("MOVE must come after SIZE", line_number);
     if (!field->dino_placed)
@@ -78,6 +84,8 @@ int execute_move(Field *field, Direction direction, int line_number){
         return 1;
     }
     
+    history_field = deep_copy_field(field);
+
     field->tiles[field->dino_pos.y][field->dino_pos.x].is_dino_placed = 0;
     field->dino_pos.x = new_x;
     field->dino_pos.y = new_y;
@@ -86,18 +94,20 @@ int execute_move(Field *field, Direction direction, int line_number){
     return 1; // Динозавр пошёл
 }
 
-int execute_paint(Field *field, char color, int line_number){
+int execute_paint(Field *field, Field *history_field, char color, int line_number){
     if (!field)
         handle_error("PAINT must come after SIZE", line_number);
     if (!field->dino_placed)
         handle_error("Cannot paint before dinosaur placement", line_number);
+
+    history_field = deep_copy_field(field);
 
     field->tiles[field->dino_pos.y][field->dino_pos.x].base_symbol = color;
     
     return 1; // Клетка накрашена (Куда это она собралась?)
 }
 
-int execute_jump(Field *field, Direction direction, int distance, int line_number) {
+int execute_jump(Field *field, Field *history_field, Direction direction, int distance, int line_number) {
     if (!field)
         handle_error("JUMP must come after SIZE", line_number);
     if (!field->dino_placed)
@@ -105,6 +115,8 @@ int execute_jump(Field *field, Direction direction, int distance, int line_numbe
  
     int new_x = field->dino_pos.x;
     int new_y = field->dino_pos.y;
+
+    history_field = deep_copy_field(field);
     
     for (int i = 0; i < distance; ++i){
         switch (direction) {
@@ -123,6 +135,7 @@ int execute_jump(Field *field, Direction direction, int distance, int line_numbe
         
         // Проверка полёта, через что пргает динозавр, чтобы оставить в клетке нужный символ
         
+
         field->tiles[field->dino_pos.y][field->dino_pos.x].is_dino_placed = 0;
 
         field->dino_pos.x = new_x;
@@ -138,7 +151,7 @@ int execute_jump(Field *field, Direction direction, int distance, int line_numbe
     return 1;
 }
 
-int execute_dig(Field *field, Direction direction, int line_number){
+int execute_dig(Field *field, Field *history_field, Direction direction, int line_number){
     if (!field)
         handle_error("DIG must come after SIZE", line_number);
     if (!field->dino_placed)
@@ -156,6 +169,7 @@ int execute_dig(Field *field, Direction direction, int line_number){
             default: return 0; // По идее такого не будет, просто на всякий, ввод направления проверяется
         }
 
+    history_field = deep_copy_field(field);
     if (!is_empty_tile(field, dig_x, dig_y)){
         handle_warning("Cannot dig the tile", line_number);
         return 1;
@@ -165,7 +179,7 @@ int execute_dig(Field *field, Direction direction, int line_number){
     return 1; // Динозавр вскопал ямку
 }
 
-int execute_mound(Field *field, Direction direction, int line_number){
+int execute_mound(Field *field, Field *history_field, Direction direction, int line_number){
     if (!field)
         handle_error("MOUND must come after SIZE", line_number);
     if (!field->dino_placed)
@@ -183,6 +197,8 @@ int execute_mound(Field *field, Direction direction, int line_number){
             default: return 0; // По идее такого не будет, просто на всякий, ввод направления проверяется
         }
 
+    history_field = deep_copy_field(field);
+    
     if (is_hole(field, mound_x, mound_y)){
         field->tiles[mound_y][mound_x].symbol = EMPTY_TILE;
         return 1;
@@ -191,11 +207,12 @@ int execute_mound(Field *field, Direction direction, int line_number){
         return 1;
     }  
     
+    
     field->tiles[mound_y][mound_x].symbol = MOUNTAIN;
     return 1; // Динозавр насыпал гору
 }
 
-int execute_grow(Field *field, Direction direction, int line_number){
+int execute_grow(Field *field, Field *history_field, Direction direction, int line_number){
     if (!field)
         handle_error("GROW must come after SIZE", line_number);
     if (!field->dino_placed)
@@ -212,7 +229,9 @@ int execute_grow(Field *field, Direction direction, int line_number){
             case DIR_RIGHT: grow_x = (field->width + grow_x + 1) % field->width; break;
             default: return 0; // По идее такого не будет, просто на всякий, ввод направления проверяется
         }
-        
+    
+    history_field = deep_copy_field(field);
+
     if (!is_empty_tile(field, grow_x, grow_y)){
         handle_warning("Cannot do the grow the tree in that tile", line_number);
         return 1;
@@ -222,7 +241,7 @@ int execute_grow(Field *field, Direction direction, int line_number){
     return 1;
 }
 
-int execute_cut(Field *field, Direction direction, int line_number){
+int execute_cut(Field *field, Field *history_field, Direction direction, int line_number){
     if (!field)
         handle_error("CUT must come after SIZE", line_number);
     if (!field->dino_placed)
@@ -240,6 +259,7 @@ int execute_cut(Field *field, Direction direction, int line_number){
             default: return 0; // По идее такого не будет, просто на всякий, ввод направления проверяется
         }
 
+    history_field = deep_copy_field(field);
     if (!is_tree(field, cut_x, cut_y)){
         handle_warning("Cannot do the cut the tree in that tile", line_number);
         return 1;
@@ -249,7 +269,7 @@ int execute_cut(Field *field, Direction direction, int line_number){
     return 1;
 }
 
-int execute_make(Field *field, Direction direction, int line_number){
+int execute_make(Field *field, Field *history_field, Direction direction, int line_number){
     if (!field)
         handle_error("MAKE must come after SIZE", line_number);
     if (!field->dino_placed)
@@ -266,7 +286,8 @@ int execute_make(Field *field, Direction direction, int line_number){
             case DIR_RIGHT: grow_x = (field->width + grow_x + 1) % field->width; break;
             default: return 0; // По идее такого не будет, просто на всякий, ввод направления проверяется
         }
-        
+     
+    history_field = deep_copy_field(field);
     if (!is_empty_tile(field, grow_x, grow_y)){
         handle_warning("Cannot make the rock in that tile", line_number);
         return 1;
@@ -276,7 +297,7 @@ int execute_make(Field *field, Direction direction, int line_number){
     return 1;
 }
 
-int execute_push(Field *field, Direction direction, int line_number){
+int execute_push(Field *field, Field *history_field, Direction direction, int line_number){
     if (!field)
         handle_error("MAKE must come after SIZE", line_number);
     if (!field->dino_placed)
@@ -308,7 +329,8 @@ int execute_push(Field *field, Direction direction, int line_number){
                 break;
             default: return 0; // По идее такого не будет, просто на всякий, ввод направления проверяется
         }
-        
+    
+    history_field = deep_copy_field(field);
     if (!is_rock(field, rock_x, rock_y)){
         handle_warning("Cannot push the rock in that tile", line_number);
         return 1;
@@ -326,7 +348,7 @@ int execute_push(Field *field, Direction direction, int line_number){
     return 1;
 }
 
-int execute_load(Field **field, const char *filename, int line_number) {
+int execute_load(Field **field, Field **history_field, const char *filename, int line_number) {
     if (*field) {
         handle_error("LOAD must be the first command", line_number);
         return 0;
@@ -391,6 +413,48 @@ int execute_load(Field **field, const char *filename, int line_number) {
         }
     }
 
+    *history_field = create_field(width, height);
+    if (!*history_field)
+        handle_error("Failed to create field for saving history of changings", line_number);
+
     fclose(file);
+    return 1;
+}
+
+int execute_if(Interpreter *interpreter, Field *field, Command *cmd){
+    if (!interpreter->field)
+        handle_error("IF must come after SIZE", cmd->line_number);
+    int x = cmd->parametrs.position.x;
+    int y = cmd->parametrs.position.y;
+    int width = interpreter->field->width;
+    int height = interpreter->field->height;
+
+    if (field->tiles[y][x].base_symbol == cmd->parametrs.color_char ||
+    field->tiles[y][x].symbol == cmd->parametrs.color_char || 
+    (field->tiles[y][x].is_dino_placed && cmd->parametrs.color_char == DINOSAUR)){
+        Command then_cmd = parse_command(cmd->then_line, cmd->line_number);
+        if (!execute_command(interpreter, cmd))
+            return 0;
+    }
+
+    return 1;
+}
+
+int execute_undo(Field *field, Field *history_field, int line_number){
+    if (!field)
+        handle_error("MAKE must come after SIZE", line_number);
+    if (!field->dino_placed)
+        handle_error("Cannot make the rock before dinosaur placement", line_number);
+    if (!history_field)
+        handle_error("History is empty", line_number);
+
+    Field *middle_field = deep_copy_field(field);
+
+    field = deep_copy_field(history_field);
+
+    history_field = deep_copy_field(middle_field);
+
+    free_field(middle_field);
+
     return 1;
 }

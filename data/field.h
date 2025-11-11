@@ -14,6 +14,8 @@ typedef struct {
 } Field;
 
 Field* create_field(int width, int height);
+Field* deep_copy_field(const Field* src);
+
 void free_field(Field* field);
 void print_field(const Field* field);
 

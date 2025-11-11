@@ -15,6 +15,12 @@ Command parse_size_command(int line_number){
     char *width_str = strtok(NULL, " ");
     char *height_str = strtok(NULL, " ");
 
+    char *smth_wrong = strtok(NULL, " \t\n\r");
+    if (smth_wrong != NULL){
+        handle_error("Right symbols are not allowed", line_number);
+        return (Command){CMD_UNKNOWN};
+    }
+
     int width, height;
     if (parse_strict_positive_integer(width_str, &width) == -1){
         handle_error("Invalid width in SIZE command", line_number);
@@ -47,6 +53,12 @@ Command parse_start_command(int line_number){
     char* x_str = strtok(NULL, " ");
     char* y_str = strtok(NULL, " ");
 
+    char *smth_wrong = strtok(NULL, " \t\n\r");
+    if (smth_wrong != NULL){
+        handle_error("Right symbols are not allowed", line_number);
+        return (Command){CMD_UNKNOWN};
+    }
+
     int x, y; 
     if (parse_strict_positive_integer(x_str, &x) == -1){
         handle_error("Invalid X-coordinate in START command", line_number);
@@ -71,6 +83,12 @@ Command parse_move_command(int line_number){
 
     char *dir_str = strtok(NULL, " ");
 
+    char *smth_wrong = strtok(NULL, " \t\n\r");
+    if (smth_wrong != NULL){
+        handle_error("Right symbols are not allowed", line_number);
+        return (Command){CMD_UNKNOWN};
+    }
+
     if (!is_valid_direction(dir_str)){
         handle_error("Invalid direction in MOVE command", line_number);
         return (Command){CMD_UNKNOWN};
@@ -85,6 +103,12 @@ Command parse_paint_command(int line_number){
     cmd.type = CMD_PAINT;
     cmd.line_number = line_number;
     char *color_str = strtok(NULL, " ");
+
+    char *smth_wrong = strtok(NULL, " \t\n\r");
+    if (smth_wrong != NULL){
+        handle_error("Right symbols are not allowed", line_number);
+        return (Command){CMD_UNKNOWN};
+    }
     
     if (!color_str || strlen(color_str) != 1){
         handle_error("Invalid color in PAINT command", line_number);
@@ -107,6 +131,12 @@ Command parse_jump_command(int line_number){
     cmd.line_number = line_number;
     char *dir_str = strtok(NULL, " ");
     char *dist_str = strtok(NULL, " ");
+
+    char *smth_wrong = strtok(NULL, " \t\n\r");
+    if (smth_wrong != NULL){
+        handle_error("Right symbols are not allowed", line_number);
+        return (Command){CMD_UNKNOWN};
+    }
     
     int distance;
     if (!is_valid_direction(dir_str)){
@@ -131,6 +161,12 @@ Command parse_dig_command(int line_number){
     cmd.line_number = line_number;
     char *dir_str = strtok(NULL, " ");
 
+    char *smth_wrong = strtok(NULL, " \t\n\r");
+    if (smth_wrong != NULL){
+        handle_error("Right symbols are not allowed", line_number);
+        return (Command){CMD_UNKNOWN};
+    }
+
     if (!is_valid_direction(dir_str)){
         handle_error("Invalid direction in DIG command", line_number);
         return (Command){CMD_UNKNOWN};
@@ -146,6 +182,12 @@ Command parse_mound_command(int line_number){
     cmd.type = CMD_MOUND;
     cmd.line_number = line_number;
     char *dir_str = strtok(NULL, " ");
+
+    char *smth_wrong = strtok(NULL, " \t\n\r");
+    if (smth_wrong != NULL){
+        handle_error("Right symbols are not allowed", line_number);
+        return (Command){CMD_UNKNOWN};
+    }
 
     if (!is_valid_direction(dir_str)){
         handle_error("Invalid direction in MOUND command", line_number);
@@ -163,6 +205,12 @@ Command parse_grow_command(int line_number){
     cmd.line_number = line_number;
     char *dir_str = strtok(NULL, " ");
 
+    char *smth_wrong = strtok(NULL, " \t\n\r");
+    if (smth_wrong != NULL){
+        handle_error("Right symbols are not allowed", line_number);
+        return (Command){CMD_UNKNOWN};
+    }
+
     if (!is_valid_direction(dir_str)){
         handle_error("Invalid direction in MOUND command", line_number);
         return (Command){CMD_UNKNOWN};
@@ -178,6 +226,12 @@ Command parse_cut_command(int line_number){
     cmd.type = CMD_CUT;
     cmd.line_number = line_number;
     char *dir_str = strtok(NULL, " ");
+
+    char *smth_wrong = strtok(NULL, " \t\n\r");
+    if (smth_wrong != NULL){
+        handle_error("Right symbols are not allowed", line_number);
+        return (Command){CMD_UNKNOWN};
+    }
 
     if (!is_valid_direction(dir_str)){
         handle_error("Invalid direction in CUT command", line_number);
@@ -195,6 +249,12 @@ Command parse_make_command(int line_number){
     cmd.line_number = line_number;
     char *dir_str = strtok(NULL, " ");
 
+    char *smth_wrong = strtok(NULL, " \t\n\r");
+    if (smth_wrong != NULL){
+        handle_error("Right symbols are not allowed", line_number);
+        return (Command){CMD_UNKNOWN};
+    }
+
     if (!is_valid_direction(dir_str)){
         handle_error("Invalid direction in MAKE command", line_number);
         return (Command){CMD_UNKNOWN};
@@ -208,6 +268,12 @@ Command parse_make_command(int line_number){
 Command parse_push_command(int line_number){
     Command cmd = {CMD_PUSH};
     char *dir_str = strtok(NULL, " ");
+
+    char *smth_wrong = strtok(NULL, " \t\n\r");
+    if (smth_wrong != NULL){
+        handle_error("Right symbols are not allowed", line_number);
+        return (Command){CMD_UNKNOWN};
+    }
 
     if (!is_valid_direction(dir_str)){
         handle_error("Invalid direction in PUSH command", line_number);
@@ -225,6 +291,12 @@ Command parse_load_command(int line_number){
     cmd.line_number = line_number;
 
     char *filename = strtok(NULL, " ");
+
+    char *smth_wrong = strtok(NULL, " \t\n\r");
+    if (smth_wrong != NULL){
+        handle_error("Right symbols are not allowed", line_number);
+        return (Command){CMD_UNKNOWN};
+    }
 
     if (!filename || strlen(filename) == 0){
         handle_error("Missing filename in LOAD command", line_number);
@@ -300,19 +372,27 @@ Command parse_if_command(int line_number){
         return cmd;
     }
 
-    while (*then_line == ' ' || *then_line == '\t') then_line++;
-    if (*then_line == '\0') {
-        handle_error("Empty command after THEN", line_number);
-        cmd.type = CMD_UNKNOWN;
-        return cmd;
+    
+
+    strncpy(cmd.then_line, then_line, MAX_LINE_LENGTH - 1);
+    cmd.parametrs.filename[MAX_LINE_LENGTH - 1] = '\0';
+    cmd.parametrs.color_char = expected;
+    cmd.parametrs.position.x = x;
+    cmd.parametrs.position.y = y;
+
+    return cmd;
+}
+
+Command parse_undo_command(int line_number){
+    char *smth_wrong = strtok(NULL, " \t\n\r");
+    if (smth_wrong != NULL){
+        handle_error("Right symbols are not allowed", line_number);
+        return (Command){CMD_UNKNOWN};
     }
 
-    Command then_cmd = parse_command(then_line, line_number);
-    if (then_cmd.type == CMD_UNKNOWN) {
-        cmd.type = CMD_UNKNOWN;
-        return cmd;
-    }
+    Command cmd = {0};
+    cmd.type = CMD_UNDO;
+    cmd.line_number = line_number;
 
-    cmd = parse_command(then_line, line_number);
     return cmd;
 }

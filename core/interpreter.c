@@ -19,6 +19,7 @@ void sleep_ms(int milliseconds) {
 #endif
 }
 
+
 Interpreter* create_interpreter(void) {
     Interpreter* interpreter = (Interpreter*) malloc(sizeof(Interpreter));
     if (!interpreter) return NULL;
@@ -58,58 +59,66 @@ int execute_command(Interpreter* interpreter, Command *cmd) {
     
     switch (cmd->type) {
         case CMD_SIZE:
-            if (!execute_size(&interpreter->field, cmd->parametrs.size.width, cmd->parametrs.size.height, cmd->line_number)) {
+            if (!execute_size(&interpreter->field, &interpreter->history_field, cmd->parametrs.size.width, cmd->parametrs.size.height, cmd->line_number)) {
                 result = EXECUTION_ERROR;
             }
             break;
             
         case CMD_START:
-            if (!execute_start(interpreter->field, cmd->parametrs.position.x, cmd->parametrs.position.y, cmd->line_number)) {
+            if (!execute_start(interpreter->field, interpreter->history_field, cmd->parametrs.position.x, cmd->parametrs.position.y, cmd->line_number)) {
                 result = EXECUTION_ERROR;
             }
             break;
             
         case CMD_MOVE:
-            if (!execute_move(interpreter->field, cmd->parametrs.direction, cmd->line_number))
+            if (!execute_move(interpreter->field, interpreter->history_field, cmd->parametrs.direction, cmd->line_number))
                 result = EXECUTION_ERROR;
             break;
 
         case CMD_PAINT:
-            if (!execute_paint(interpreter->field, cmd->parametrs.color_char, cmd->line_number)) 
+            if (!execute_paint(interpreter->field, interpreter->history_field, cmd->parametrs.color_char, cmd->line_number)) 
                 result = EXECUTION_ERROR;
             break;
             
         case CMD_JUMP:
-            if (!execute_jump(interpreter->field, cmd->parametrs.direction, cmd->jump_distance, cmd->line_number))
+            if (!execute_jump(interpreter->field, interpreter->history_field, cmd->parametrs.direction, cmd->jump_distance, cmd->line_number))
                 result = EXECUTION_ERROR;
             break;
         case CMD_DIG:
-            if (!execute_dig(interpreter->field, cmd->parametrs.direction, cmd->line_number))
+            if (!execute_dig(interpreter->field,interpreter->history_field, cmd->parametrs.direction, cmd->line_number))
                 result = EXECUTION_ERROR;
             break;
 
         case CMD_MOUND:
-            if (!execute_mound(interpreter->field, cmd->parametrs.direction, cmd->line_number))
+            if (!execute_mound(interpreter->field, interpreter->history_field, cmd->parametrs.direction, cmd->line_number))
                 result = EXECUTION_ERROR;
             break;
         case CMD_GROW:
-            if (!execute_grow(interpreter->field, cmd->parametrs.direction, cmd->line_number))
+            if (!execute_grow(interpreter->field, interpreter->history_field, cmd->parametrs.direction, cmd->line_number))
                 result = EXECUTION_ERROR;
             break;
         case CMD_CUT:
-            if (!execute_cut(interpreter->field, cmd->parametrs.direction, cmd->line_number))
+            if (!execute_cut(interpreter->field, interpreter->history_field, cmd->parametrs.direction, cmd->line_number))
                 result = EXECUTION_ERROR;
             break;
         case CMD_MAKE:
-            if (!execute_make(interpreter->field, cmd->parametrs.direction, cmd->line_number))
+            if (!execute_make(interpreter->field, interpreter->history_field, cmd->parametrs.direction, cmd->line_number))
                 result = EXECUTION_ERROR;
             break;
         case CMD_PUSH:
-            if (!execute_push(interpreter->field, cmd->parametrs.direction, cmd->line_number))
+            if (!execute_push(interpreter->field, interpreter->history_field, cmd->parametrs.direction, cmd->line_number))
                 result = EXECUTION_ERROR;
             break;
         case CMD_LOAD:
-            if (!execute_load(&interpreter->field, cmd->parametrs.filename, cmd->line_number))
+            if (!execute_load(&interpreter->field, &interpreter->history_field, cmd->parametrs.filename, cmd->line_number))
+                result = EXECUTION_ERROR;
+            break;
+        case CMD_IF:
+            if (!execute_if(interpreter, interpreter->field, cmd))
+                result = EXECUTION_ERROR;
+            break;
+        case CMD_UNDO:
+            if (!execute_undo(interpreter->field, interpreter->history_field, cmd->line_number));
                 result = EXECUTION_ERROR;
             break;
         case CMD_UNKNOWN:
